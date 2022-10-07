@@ -469,6 +469,19 @@ impl RequestBuilder {
         self
     }
 
+    /// Use a same-origin request.
+    ///
+    /// # WASM
+    ///
+    /// This option is only effective with WebAssembly target.
+    ///
+    /// The [request mode][mdn] will be set to 'same-origin'.
+    ///
+    /// [mdn]: https://developer.mozilla.org/en-US/docs/Web/API/Request/mode
+    pub fn fetch_mode_same_origin(self) -> RequestBuilder {
+        self
+    }
+
     /// Build a `Request`, which can be inspected, modified and executed with
     /// `Client::execute()`.
     pub fn build(self) -> crate::Result<Request> {

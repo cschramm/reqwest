@@ -9,7 +9,7 @@ use serde::Serialize;
 #[cfg(feature = "json")]
 use serde_json;
 use url::Url;
-use web_sys::RequestCredentials;
+use web_sys::{RequestCredentials, RequestMode};
 
 use super::{Body, Client, Response};
 use crate::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
@@ -20,7 +20,7 @@ pub struct Request {
     url: Url,
     headers: HeaderMap,
     body: Option<Body>,
-    pub(super) cors: bool,
+    pub(super) fetch_mode: RequestMode,
     pub(super) credentials: Option<RequestCredentials>,
 }
 
@@ -39,7 +39,7 @@ impl Request {
             url,
             headers: HeaderMap::new(),
             body: None,
-            cors: true,
+            fetch_mode: RequestMode::Cors,
             credentials: None,
         }
     }
@@ -106,7 +106,7 @@ impl Request {
             url: self.url.clone(),
             headers: self.headers.clone(),
             body,
-            cors: self.cors,
+            fetch_mode: self.fetch_mode,
             credentials: self.credentials,
         })
     }
@@ -301,7 +301,23 @@ impl RequestBuilder {
     /// [mdn]: https://developer.mozilla.org/en-US/docs/Web/API/Request/mode
     pub fn fetch_mode_no_cors(mut self) -> RequestBuilder {
         if let Ok(ref mut req) = self.request {
-            req.cors = false;
+            req.fetch_mode = RequestMode::NoCors;
+        }
+        self
+    }
+
+    /// Use a same-origin request.
+    ///
+    /// # WASM
+    ///
+    /// This option is only effective with WebAssembly target.
+    ///
+    /// The [request mode][mdn] will be set to 'same-origin'.
+    ///
+    /// [mdn]: https://developer.mozilla.org/en-US/docs/Web/API/Request/mode
+    pub fn fetch_mode_same_origin(mut self) -> RequestBuilder {
+        if let Ok(ref mut req) = self.request {
+            req.fetch_mode = RequestMode::SameOrigin;
         }
         self
     }
@@ -460,7 +476,7 @@ where
             url,
             headers,
             body: Some(body.into()),
-            cors: true,
+            fetch_mode: RequestMode::Cors,
             credentials: None,
         })
     }

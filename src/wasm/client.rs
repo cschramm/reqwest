@@ -201,10 +201,7 @@ async fn fetch(req: Request) -> crate::Result<Response> {
     }
     init.headers(&js_headers.into());
 
-    // When req.cors is true, do nothing because the default mode is 'cors'
-    if !req.cors {
-        init.mode(web_sys::RequestMode::NoCors);
-    }
+    init.mode(req.fetch_mode);
 
     if let Some(creds) = req.credentials {
         init.credentials(creds);
